@@ -1,0 +1,28 @@
+model:
+    family: gpt2
+    n_embd: 256
+    n_layer: 1
+    n_head: 1
+    seq_op: attn
+    causal: True
+    conv_type: short
+
+    use_mlps: False
+    mlp_upfactor: 4
+    mlp_activ: relu
+
+    use_resid: True
+    use_bias: True
+    use_seqop_ln: False
+    use_final_ln: False
+    use_mlp_ln: False
+    train_proj: True
+    train_pos: True
+
+    use_softmax_for_attn: True
+
+    # Experiment
+    n_dims: 41
+    n_positions: 51
+    in_dims: 0
+    out_dims: 0

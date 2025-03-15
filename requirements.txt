@@ -1,0 +1,11 @@
+einops
+matplotlib
+munch
+numpy
+pandas
+quinine==0.3.0
+scikit-learn
+seaborn
+torch
+tqdm
+wandb

@@ -1,0 +1,33 @@
+inherit:
+    - default_recipe.yaml
+
+model:
+    n_layer: 2
+    n_dims: 20
+    in_dims: 20
+    out_dims: 20
+    n_positions: 40
+
+training:
+    data: gaussian
+    data_kwargs: {}
+    task: read
+    task_kwargs: {}
+    curriculum:
+        points:
+            start: 40
+            end: 40
+            inc: 2
+            interval: 3000
+        dims:
+            start: 20
+            end: 20
+            inc: 1
+            interval: 3000
+    keep_every_steps: 10000
+
+autoname: False
+out_dir: models/task=read
+
+wandb:
+    name: "task=read"

@@ -1,0 +1,37 @@
+inherit:
+    - ../standard.yaml
+    - ../wandb.yaml
+
+model:
+    n_layer: 12
+    n_embd: 64
+    seq_op: base_conv
+    conv_type: short
+
+    use_mlps: False
+
+    use_seqop_ln: False
+    use_final_ln: False
+    use_mlp_ln: False
+
+training:
+    optimizer: adam
+    train_steps: 2500001
+    batch_size: 1024
+    learning_rate: 0.01
+    weight_decay: 0
+
+    scheduler: adaptive_threshold
+    scheduler_steprate: 3000
+    scheduler_gamma: 0.9
+    scheduler_ema_lambda: 0.9
+    scheduler_metric_threshold: 0.9
+
+    ema_decay: 0.98
+    ema_lambda: 2.0
+
+    keep_every_steps: 10000
+
+autoname: False
+wandb:
+    log_every_steps: 1000

@@ -1,0 +1,32 @@
+inherit:
+    - default_recipe.yaml
+
+model:
+    n_dims: 5
+    in_dims: 6
+    out_dims: 5
+    n_positions: 20
+
+training:
+    data: least_squares
+    data_kwargs: {"scale_cond": 5}
+    task: least_squares
+    task_kwargs: {}
+    curriculum:
+        points:
+            start: 20
+            end: 20
+            inc: 2
+            interval: 3000
+        dims:
+            start: 5
+            end: 5
+            inc: 1
+            interval: 3000
+    keep_every_steps: 10000
+
+autoname: False
+out_dir: models/task=least_squares_cond=5
+
+wandb:
+    name: "task=least_squares_cond=5"
