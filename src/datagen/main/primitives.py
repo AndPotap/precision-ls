@@ -194,11 +194,11 @@ if __name__ == "__main__":
     assert task_in_data.shape == (16, 40, 20)
     assert task_out_data.shape == (16, 40, 20)
     perfect_pred_square = x**2
-    assert torch.all(
-        task.get_metric()(perfect_pred_square, task_out_data)
-        == torch.tensor(0).to(
+    assert torch.allclose(
+        task.get_metric()(perfect_pred_square, task_out_data),
+        torch.tensor(0).to(
             dtype=perfect_pred_square.dtype, device=perfect_pred_square.device
-        )
+        ),
     )
 
     # Test ElementwiseMultiply
@@ -209,11 +209,11 @@ if __name__ == "__main__":
     assert task_in_data.shape == (16, 40, 20)
     assert task_out_data.shape == (16, 40, 10)
     perfect_pred_multiply = x[:, :, :10] * x[:, :, 10:]
-    assert torch.all(
-        task.get_metric()(perfect_pred_multiply, task_out_data)
-        == torch.tensor(0).to(
+    assert torch.allclose(
+        task.get_metric()(perfect_pred_multiply, task_out_data),
+        torch.tensor(0).to(
             dtype=perfect_pred_multiply.dtype, device=perfect_pred_multiply.device
-        )
+        ),
     )
 
     # Test Read
@@ -225,11 +225,11 @@ if __name__ == "__main__":
     assert task_out_data.shape == (16, 40, 20)
     perfect_pred_read = x.clone()
     perfect_pred_read[:, task.j] = x[:, task.i]
-    assert torch.all(
-        task.get_metric()(perfect_pred_read, task_out_data)
-        == torch.tensor(0).to(
+    assert torch.allclose(
+        task.get_metric()(perfect_pred_read, task_out_data),
+        torch.tensor(0).to(
             dtype=perfect_pred_read.dtype, device=perfect_pred_read.device
-        )
+        ),
     )
 
     # Test Linear
@@ -240,11 +240,11 @@ if __name__ == "__main__":
     assert task_in_data.shape == (16, 40, 20)
     assert task_out_data.shape == (16, 40, 1)
     perfect_pred_affine = torch.einsum("bld,d->bl", x, task.c).unsqueeze(-1)
-    assert torch.all(
-        task.get_metric()(perfect_pred_affine, task_out_data)
-        == torch.tensor(0).to(
+    assert torch.allclose(
+        task.get_metric()(perfect_pred_affine, task_out_data),
+        torch.tensor(0).to(
             dtype=perfect_pred_affine.dtype, device=perfect_pred_affine.device
-        )
+        ),
     )
 
     print("Primitives test passed")

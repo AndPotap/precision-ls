@@ -1,0 +1,6 @@
+wandb:
+    project: precision-ls
+    entity: # Add your wandb entity here
+    notes:
+    log_every_steps: 100
+    mode: online

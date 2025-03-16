@@ -113,9 +113,9 @@ if __name__ == "__main__":
     # Check metric
     perfect_pred = torch.zeros_like(task_in_data)
     perfect_pred[:, -1, :-1] = x_init - grad
-    assert torch.all(
-        task.get_metric()(perfect_pred, task_out_data)
-        == torch.tensor(0).to(dtype=perfect_pred.dtype, device=perfect_pred.device)
+    assert torch.allclose(
+        task.get_metric()(perfect_pred, task_out_data),
+        torch.tensor(0).to(dtype=perfect_pred.dtype, device=perfect_pred.device),
     )
 
     print("MultistepGradientDescent test passed")

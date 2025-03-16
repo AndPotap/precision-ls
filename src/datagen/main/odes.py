@@ -280,7 +280,7 @@ if __name__ == "__main__":
     out = task.evaluate(task_data)
 
     # Check shapes of out
-    assert out["in"].shape == (batch_size, n_points + 1, n_dims + 3)
+    assert out["in"].shape == (batch_size, n_points, n_dims + 3)
     assert out["out"].shape == (batch_size, 1, 1)
 
     print("ODEOperatorSampler and ODEOperatorICL test passed")

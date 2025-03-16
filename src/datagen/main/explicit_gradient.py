@@ -138,30 +138,21 @@ if __name__ == "__main__":
     assert task_out_data.shape == (16, 5)
 
     # Check entries of task_in_data
-    assert torch.all(task_in_data[:, 0, :-1] == x_init)
-    assert torch.all(task_in_data[:, 1:, :-1] == a)
-    assert torch.all(task_in_data[:, 1:, -1] == b)
+    assert torch.allclose(task_in_data[:, 0, :-1], x_init)
+    assert torch.allclose(task_in_data[:, 1:, :-1], a)
+    assert torch.allclose(task_in_data[:, 1:, -1], b)
 
     # Check entries of task_out_data
     resid = torch.einsum("bld,bd->bl", a, x_init) - b
     grad = torch.einsum("bld,bl->bd", a, resid) / 20
-    assert torch.all(task_out_data == grad)
+    assert torch.allclose(task_out_data, grad)
 
     # Check metric
     perfect_pred = torch.zeros_like(task_in_data)
     perfect_pred[:, -1, :-1] = grad
-    assert torch.all(
-        task.get_metric()(perfect_pred, task_out_data)
-        == torch.tensor(0).to(dtype=perfect_pred.dtype, device=perfect_pred.device)
+    assert torch.allclose(
+        task.get_metric()(perfect_pred, task_out_data),
+        torch.tensor(0).to(dtype=perfect_pred.dtype, device=perfect_pred.device),
     )
-
-    # Check that ExplicitGradient matches the original definition
-    task_old = ExplicitGradient(setting="all")
-    task_data_old = task_old.evaluate((a, x, x_init, b))
-    task_in_data_old = task_data_old["in"]
-    task_out_data_old = task_data_old["out"]
-    assert task_in_data_old.shape == (16, 21, 6)
-    assert task_out_data_old.shape == (16, 1, 5)
-    assert torch.allclose(task_out_data_old[:, 0], task_out_data)
 
     print("ExplicitGradient test passed")

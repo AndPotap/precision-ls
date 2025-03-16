@@ -1,18 +1,12 @@
 .ipynb_checkpoints
 __pycache__
 */__pycache__/
-models.zip
 /models/
-/data/
-/figs/
 
 .DS_Store
 src/slurm*.out
 src/figs/
 src/*.png
 notebooks/figs/
-notebooks/**/figs/
 notebooks/**/*.png
-src/datagen/test/figs/
 src/conf/wandb.yaml
-scripts/*.png
