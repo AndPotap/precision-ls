@@ -8,6 +8,7 @@ This repository contains code for the following paper:
 >
 > Jerry Liu, Jessica Grogan, Owen Dugan, Ashish Rao, Simran Arora, Atri Rudra, Chris Ré.
 > ICLR 2025.
+> [arXiv](https://arxiv.org/abs/2503.12295)
 
 ## Dependencies
 Install dependencies with
@@ -54,10 +55,13 @@ bash replication_scripts/odes.sh
 ## Citation
 If you find this work useful, please cite it as follows:
 ```
-@article{TODO,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO},
+@misc{liu2025learninghighprecisionsquaresalgorithms,
+      title={Towards Learning High-Precision Least Squares Algorithms with Sequence Models}, 
+      author={Jerry Liu and Jessica Grogan and Owen Dugan and Ashish Rao and Simran Arora and Atri Rudra and Christopher Ré},
+      year={2025},
+      eprint={2503.12295},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2503.12295}, 
 }
 ```
