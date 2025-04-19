@@ -203,12 +203,19 @@ def train(model, args):
             out_dict = None  # gets overwritten each step
 
         else:
-            l1_scale = min(training_metrics_task, l1_scale, 1)
+            # l1_scale = min(training_metrics_task, l1_scale, 1)
+            l1_scale = min(l1_scale, 1)
+
         l1_norm = sum(p.abs().sum() for p in model.parameters())
-        loss_func = (
-            lambda output, ys: task.get_training_metric()(output, ys)
-            + args.training.l1_reg * l1_scale * l1_norm
-        )  # L1 regularization
+        def loss_func(output, ys):
+            out = task.get_training_metric()(output, ys)
+            out = out + args.training.l1_reg * l1_scale * l1_norm
+            return out
+
+        # loss_func = (
+        #     lambda output, ys: task.get_training_metric()(output, ys)
+        #     + args.training.l1_reg * l1_scale * l1_norm
+        # )  # L1 regularization
 
         # Compute mini-batch gradient variance
         if (i % args.wandb.log_every_steps == 0) and not args.test_run:
