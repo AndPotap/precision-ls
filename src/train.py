@@ -1,23 +1,23 @@
+import math
 import os
 import uuid
 
-import math
-from quinine import QuinineArgumentParser
-from tqdm import tqdm
 import torch
 import wandb
 import yaml
+from quinine import QuinineArgumentParser
+from tqdm import tqdm
 
 from datagen.main import get_data_sampler, get_task_sampler
-from train_util import Curriculum, schema, get_device
 from models import build_model
 from optimizers import (
-    gradfilter_ema,
-    grad_history_to_tensor,
-    compute_gradient_stats,
     compute_current_gradient_stats,
+    compute_gradient_stats,
+    grad_history_to_tensor,
+    gradfilter_ema,
 )
-from schedulers import StepThresholdLR, AdaptiveStepLR
+from schedulers import AdaptiveStepLR, StepThresholdLR
+from train_util import Curriculum, get_device, schema
 
 torch.backends.cudnn.benchmark = True
 
