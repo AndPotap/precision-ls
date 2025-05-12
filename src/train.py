@@ -34,10 +34,7 @@ def compute_gradient_norms(model):
     return total_norm
 
 
-def train_step(
-    model, xs, ys, optimizer, scheduler, loss_func, ema_args=None, out_dict=None
-):
-
+def train_step(model, xs, ys, optimizer, scheduler, loss_func, ema_args=None, out_dict=None):
     optimizer.zero_grad()
 
     output = model(xs)  # (b l d)
@@ -88,7 +85,6 @@ def train_step(
 
 
 def train(model, args):
-
     if args.training.optimizer == "adam":
         optimizer = torch.optim.Adam(
             model.parameters(),
@@ -181,7 +177,6 @@ def train(model, args):
     pbar = tqdm(range(starting_step, args.training.train_steps))
 
     for i in pbar:
-
         task_data = data_sampler.sample(
             n_points=curriculum.n_points,
             batch_size=bsize,
@@ -207,6 +202,7 @@ def train(model, args):
             l1_scale = min(l1_scale, 1)
 
         l1_norm = sum(p.abs().sum() for p in model.parameters())
+
         def loss_func(output, ys):
             out = task.get_training_metric()(output, ys)
             out = out + args.training.l1_reg * l1_scale * l1_norm
@@ -219,13 +215,8 @@ def train(model, args):
 
         # Compute mini-batch gradient variance
         if (i % args.wandb.log_every_steps == 0) and not args.test_run:
-
             # Compute and track gradient stats
-            if (
-                args.training.track_grad
-                or scheduler.__class__.__name__ == "AdaptiveStepLR"
-            ):
-
+            if args.training.track_grad or scheduler.__class__.__name__ == "AdaptiveStepLR":
                 # Mini-batch gradient variance
                 def sample_data(batch_size):
                     task_data = data_sampler.sample(
@@ -253,16 +244,10 @@ def train(model, args):
 
                 # Update EMA over gradient variance metric within adaptive LR scheduler
                 if scheduler.__class__.__name__ == "AdaptiveStepLR":
-                    scheduler.update_gradient_variance_metric(
-                        gradient_stats["gradient_cosine_mean"]
-                    )
-                    gradient_variance_metric_ema = (
-                        scheduler.gradient_variance_metric_ema
-                    )
+                    scheduler.update_gradient_variance_metric(gradient_stats["gradient_cosine_mean"])
+                    gradient_variance_metric_ema = scheduler.gradient_variance_metric_ema
                     wandb.log(
-                        {
-                            "gradient_cosine_metric_lrscheduler": gradient_variance_metric_ema
-                        },
+                        {"gradient_cosine_metric_lrscheduler": gradient_variance_metric_ema},
                         step=i,
                     )
 
@@ -291,6 +276,10 @@ def train(model, args):
             },
             out_dict=out_dict,
         )
+        rhs = xs[..., [-1]]
+        A = xs[..., :-1]
+        x_hat = out_dict["output"][..., [-1], :].transpose(-1, -2)
+        actual = torch.mean(torch.linalg.norm(A @ x_hat - rhs, ord=2, dim=[-1, -2]))
 
         loss = out_dict["loss"]
         output = out_dict["output"]
@@ -305,9 +294,7 @@ def train(model, args):
 
         # Evaluation metrics
         eval_metrics_func = task.get_eval_metrics()
-        eval_metrics = eval_metrics_func(
-            output, ys.to(device), xs.to(device)
-        )  # dict of metrics
+        eval_metrics = eval_metrics_func(output, ys.to(device), xs.to(device))  # dict of metrics
         # Training metrics
         training_metrics_task = task.get_training_metric()(output, ys.to(device))
         training_metrics_reg = l1_norm
@@ -316,9 +303,8 @@ def train(model, args):
             wandb.log(
                 {
                     "overall_loss": loss,
-                    "pointwise/loss": dict(
-                        zip(point_wise_tags, point_wise_loss.cpu().numpy())
-                    ),
+                    "pointwise/loss": dict(zip(point_wise_tags, point_wise_loss.cpu().numpy())),
+                    "least_squares": actual.item(),
                     "task_loss": training_metrics_task,
                     "reg_loss": training_metrics_reg,
                     "grad_norm": grad_norms["norm"],
@@ -335,9 +321,10 @@ def train(model, args):
 
         curriculum.update()
 
-        pbar.set_description(
-            f"Overall loss:  {loss} / Task loss: {training_metrics_task} / Reg loss: {training_metrics_reg} / Grad norm: {grad_norms['norm']} / Learning rate: {scheduler.get_last_lr()[0]}"
-        )
+        text = f"Overall loss:  {loss:.3e} / Task loss: {training_metrics_task:.3e} / Reg loss: {training_metrics_reg:.3e} / "
+        text += f"LS: {actual:.3e} / "
+        text += f"Grad norm: {grad_norms['norm']:.3e} / Learning rate: {scheduler.get_last_lr()[0]}"
+        pbar.set_description(text)
 
         if i % args.training.save_every_steps == 0 and not args.test_run:
             training_state = {
@@ -388,15 +375,11 @@ def main(args):
     model.train()
 
     # Sanity check: assert that each model that requires_grad has a name
-    num_unique_namedparams = len(
-        set([name for name, param in model.named_parameters() if param.requires_grad])
+    num_unique_namedparams = len(set([name for name, param in model.named_parameters() if param.requires_grad]))
+    num_unique_params = len([param for param in model.parameters() if param.requires_grad])
+    assert num_unique_namedparams == num_unique_params, (
+        f"Number of unique named parameters ({num_unique_namedparams}) does not match number of unique parameters ({num_unique_params})"
     )
-    num_unique_params = len(
-        [param for param in model.parameters() if param.requires_grad]
-    )
-    assert (
-        num_unique_namedparams == num_unique_params
-    ), f"Number of unique named parameters ({num_unique_namedparams}) does not match number of unique parameters ({num_unique_params})"
 
     train(model, args)
 
